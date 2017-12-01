@@ -1,0 +1,97 @@
+
+
+########------------------------for HAPROXY---------
+
+openssl req -x509 -nodes -newkey rsa:2048 -keyout /etc/pki/tls/certs/haproxy.pem -out /etc/pki/tls/certs/haproxy.pem -days 365
+
+#######-----------------using HAPROXY------------
+
+
+frontend public_www
+    bind *:80
+    bind *:443 ssl crt /etc/ssl/ol7.io/ol7.io.pem
+
+#   Add the X-Forwarded-For HTTP header, so the backend server knows it passed a proxy
+    reqadd X-Forwarded-Proto:\ https
+
+#   Redirect http to https, The following require 1.5-dev13, it should be added after "reqadd"
+    redirect scheme https code 301 if !{ ssl_fc }
+
+    acl url_nexus2 path_beg /nexus2
+    use_backend nexus2 if url_nexus2
+
+backend nexus2
+    server serv 127.0.0.1:9081/nexus2
+
+
+###########--------------------------##############
+
+
+
+
+##################
+#
+#http://www.sonatype.org/nexus/2014/09/09/five-steps-to-securing-your-use-of-nexus/
+#
+#
+##################
+
+
+
+#######------------------------ configure ssl without haproxy-------------------
+
+1. Add the file jetty-https.xml to the Jetty startup configuration in NEXUS_HOME/bin/jsw/conf/wrapper.conf
+
+
+        wrapper.app.parameter.3=./conf/jetty-https.xml
+
+
+2. add the following line to the nexus.properties
+
+
+        application-port-ssl=8443
+
+
+3. Create a Keystore File with a Self-Signed Certificate
+
+
+-----create a folder under $NEXUS_HOME/conf named ssl and generated keystore.jks file to this folder.
+
+
+
+keytool -genkey -alias itdev03 -keyalg RSA -keypass changeit -storepass changeit -keystore keystore.jks
+
+
+
+            configure the $NEXUS_HOME/conf /jetty-https.xml file with the results of our keystore generation. 
+
+-jetty-https.xml--------------
+
+            <Set name="keyStore">./conf/ssl/keystore.jks</Set>
+            <Set name="trustStore">./conf/ssl/keystore.jks</Set>
+            <Set name="keyStorePassword">OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v</Set>
+            <Set name="keyManagerPassword">OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v</Set>
+            <Set name="trustStorePassword">OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v</Set>
+
+-----------------
+
+
+4. Disable Non-Secure Access to Nexus Pro
+
+--------------comment blow line in jetty.xml 
+
+ <Call name="addConnector">
+    <Arg>
+     <New id="HTTPConnector" class="org.sonatype.nexus.bootstrap.jetty.InstrumentedSelectChannelConnector">
+
+      <!--  <Set name="host"><Property name="application-host"/></Set>
+        <Set name="port"><Property name="application-port"/></Set>
+        <Set name="forwarded">true</Set>  -->
+
+      </New>
+    </Arg>
+  </Call> 
+
+5. Configure Automatic Redirection from HTTP to HTTPS
+
+add jetty-http-redirect-to-https.xml as additional app parameters in wrapper.conf

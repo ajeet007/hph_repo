@@ -1,0 +1,84 @@
+1. 
+  #fdisk -l
+fdisk -l to view all available partitions.
+
+2.
+  #fdisk -l /dev/sda
+To view all partitions of the /dev/sda hard disk,
+
+3.
+  # pvcreate /dev/sdb1
+To create physical volume
+
+4.
+  #pvremove /dev/sdb1
+To remove created volume 
+
+5.
+   #pvdisplay
+current state of your physical volumes
+
+************Now let's create our volume group fileserver and add /dev/sdb1 - /dev/sde1 to it:
+
+6.
+  #vgcreate fileserver /dev/sdb1
+create volume group fileserver /dev/sdb1
+
+7.
+  #vgdisplay
+  volume groups details
+  OR
+ #vgscan
+
+8.
+  #vgrename fileserver data
+Volume group "fileserver" successfully renamed to "data"
+
+9.
+  #vgdisplay
+run vgdisplay and vgscan again to see if the volume group has been renamed
+
+10.
+  #vgremove data  OR #vgremove fileserver (if you do'nt rename file server)
+ delete our volume group data
+
+
+
+***************we create our logical volumes
+
+11.
+   #lvcreate --name share --size 40G fileserver
+Logical volume "share" created
+
+12.
+   #lvcreate --name backup --size 5G fileserver
+Logical volume "backup" created
+
+13.
+  #lvcreate --name media --size 1G fileserver
+Logical volume "media" created
+
+14.
+  #lvdisplay OR lvscan
+display logical volume details 
+
+
+15.
+  #lvrename fileserver media films
+rename our logical volume media into films
+
+16.
+  #lvremove /dev/fileserver/films
+delete the logical volume films
+
+17.
+ #lvextend -L1.5G /dev/fileserver/media
+enlarge media from 1GB to 1.5GB
+
+18.
+  #lvreduce -L1G /dev/fileserver/media
+Let's shrink it to 1GB again
+
+
+
+

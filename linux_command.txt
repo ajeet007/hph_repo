@@ -1,0 +1,116 @@
+fdisk:Manage Hard Disk Partition
+
+http://www.thegeekstuff.com/2010/09/linux-fdisk/
+
+
+copy file
+
+scp jira@ada.hph.com:/home/jira/jira_home/export/backup_29082016.zip /cygdrive/c/Users/60923/Desktop
+
+
+genrate key:
+
+openssl req -x509 -nodes -newkey rsa:2048 -keyout /etc/pki/tls/certs/haproxy.pem -out /etc/pki/tls/certs/haproxy.pem -days 365
+
+
+
+Process running 
+
+
+ps -ef|grep <name>
+
+exp:-  ps -ef|grep zabbix
+
+
+===>
+open log file (current update mode )
+
+tail -f 20 <file name>
+
+exp:-> tail -f 20 zabbix_log.log
+
+===>
+
+show file size 
+
+du -hs *
+
+ssh-tunnal
+
+ ssh -R:3128:127.0.0.1:3128 root@127.0.0.1 -p 8089
+
+
+check pattern in a file
+
+grep ' Connect to localhost:' atlassian-jira.log|wc -l
+
+
+
+create link 
+
+ln -s sonarqube-6.2(source file) sonarqube(any name)
+
+
+cleanup 
+***********
+To remove directory-
+find /data/jira/export/* -type d -ctime +10 -exec rm -rf \{} \;
+find $HOME/.m2/repository/hk/com/hit/ -mtime +1 -exec ls \{} \;
+
+
+To remove file 
+find /data/jira/export/* -type f -ctime +10 -exec rm -rf {} \;
+
+create cron job 
+
+crontab -e 
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name command to be executed
+
+* * * * * find /data/jira/export/* -type f -ctime +10 -exec rm -rf {} \;
+
+
+disabling automatically sending emails of cronjob
+
+* * * * * find /data/jira/export/* -type f -ctime +10 -exec rm -rf {} \ >/dev/null 2>&1
+
+
+
+> is for redirect
+
+/dev/null is a black hole where any data sent, will be discarded
+
+2 is the file descriptor for Standard Error
+
+> is for redirect
+
+& is the symbol for file descriptor (without it, the following 1 would be considered a filename)
+
+1 is the file descriptor for Standard Out
+
+Therefore >/dev/null 2>&1 is redirect the output of your program to /dev/null. Include both the Standard Error and Standard Out.
+
+
+##########start Jenkins in linux 
+export JENKINS_LOG=/home/jenkins/jenkins.log 
+
+nohup java -jar jenkins.war --httpPort=12802 > $JENKINS_LOG 2>&1 &
+
+
+Create an archive.
+##################
+
+tar -czvf archive.tar.gz nexus/
+
+Extract tar.gz
+################
+
+tar -xzvf archive.tar.gz
+
